@@ -91,3 +91,22 @@ class ActivityLog(Base):
         Index("ix_log_status", "status"),
         Index("ix_log_time", "created_at"),
     )
+
+
+class User(Base):
+    """用户与角色"""
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String(64), unique=True, nullable=False, index=True)
+    full_name = Column(String(128), default="")
+    email = Column(String(256), default="")
+    password_hash = Column(String(256), nullable=False)
+    role = Column(String(16), default="user")  # admin / user
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        Index("ix_user_role", "role"),
+        Index("ix_user_active", "is_active"),
+    )

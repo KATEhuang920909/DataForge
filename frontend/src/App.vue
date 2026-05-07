@@ -1,36 +1,47 @@
 <template>
   <div :class="{ dark: isDark }" class="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-    <!-- Top Navigation (HF style) -->
-    <TopBar :is-dark="isDark" @toggle-dark="isDark = !isDark" @navigate="nav" />
+    <template v-if="showLayout">
+      <!-- Top Navigation (HF style) -->
+      <TopBar :is-dark="isDark" @toggle-dark="isDark = !isDark" />
 
-    <div class="flex">
-      <!-- Left Sidebar (HF style) -->
-      <Sidebar :current="currentView" @navigate="nav" />
+      <div class="flex">
+        <!-- Left Sidebar (HF style) -->
+        <Sidebar @navigate="navigate" />
 
-      <!-- Main Content -->
-      <main class="flex-1 min-w-0">
-        <div class="max-w-7xl mx-auto px-6 py-6">
-          <DatasetsView v-if="currentView === 'datasets'" @open-detail="openDetail" />
-          <DatasetDetailView v-if="currentView === 'detail'" :source-id="selectedId" @back="currentView = 'datasets'" />
-          <LogsView v-if="currentView === 'logs'" />
-        </div>
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0">
+          <div class="max-w-7xl mx-auto px-6 py-6">
+            <router-view />
+          </div>
+        </main>
+      </div>
+    </template>
+
+    <template v-else>
+      <main class="min-h-screen flex items-center justify-center px-4">
+        <router-view />
       </main>
-    </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import TopBar from './components/TopBar.vue'
 import Sidebar from './components/Sidebar.vue'
-import DatasetsView from './views/DatasetsView.vue'
-import DatasetDetailView from './views/DatasetDetailView.vue'
-import LogsView from './views/LogsView.vue'
 
-const currentView = ref('datasets')
-const selectedId = ref(0)
+const route = useRoute()
+const router = useRouter()
 const isDark = ref(false)
 
-function nav(view: string) { currentView.value = view }
-function openDetail(id: number) { selectedId.value = id; currentView.value = 'detail' }
+const showLayout = computed(() => route.meta.requiresAuth !== false)
+
+function navigate(view: string) {
+  if (view === 'datasets') {
+    router.push('/')
+  } else if (view === 'logs') {
+    router.push('/logs')
+  }
+}
 </script>

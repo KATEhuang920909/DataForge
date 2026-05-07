@@ -84,6 +84,49 @@ class ActivityLogOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    full_name: Optional[str] = ""
+    email: Optional[str] = ""
+    role: str = "user"
+
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    role: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+
+class UserOut(BaseModel):
+    id: int
+    username: str
+    full_name: str
+    email: str
+    role: str
+    is_active: bool
+    created_at: datetime
+    model_config = {"from_attributes": True}
+
+
+class TokenOut(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
+    role: Optional[str] = None
+    exp: Optional[int] = None
+
+
 class APIResponse(BaseModel):
     success: bool = True
     message: str = "ok"

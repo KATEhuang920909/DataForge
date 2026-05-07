@@ -1,4 +1,7 @@
 """业务服务层"""
+import base64
+import hashlib
+import hmac
 import io
 import json
 from datetime import datetime
@@ -9,8 +12,9 @@ import pandas as pd
 from sqlalchemy.orm import Session
 from sqlalchemy import func, String
 
-from app.models import DataSource, DatasetFile, DataRecord, ActivityLog
-from app.schemas import DataSourceCreate, DataSourceUpdate
+from app.core.security import pwd_context
+from app.models import DataSource, DatasetFile, DataRecord, ActivityLog, User
+from app.schemas import DataSourceCreate, DataSourceUpdate, UserCreate, UserUpdate
 
 TABULAR_FORMATS = {'csv', 'json', 'xlsx', 'xls', 'tsv'}
 
@@ -272,3 +276,65 @@ def _log(db, action, target_type, target_id, detail, source_id=None, status="suc
     log = ActivityLog(action=action, target_type=target_type, target_id=target_id, source_id=source_id, detail=detail, status=status)
     db.add(log)
     db.flush()
+
+
+# ── User 管理 ──
+
+def verify_password(password: str, password_hash: str) -> bool:
+    return pwd_context.verify(password, password_hash)
+
+
+def create_user(db: Session, user_in: UserCreate) -> User:
+    """创建新用户"""
+    hashed_password = pwd_context.hash(user_in.password)
+    db_user = User(
+        username=user_in.username,
+        password_hash=hashed_password,
+        email=user_in.email,
+        full_name=user_in.full_name,
+        role='user'  # 默认角色
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+def get_user_by_username(db: Session, username: str) -> Optional[User]:
+    return db.query(User).filter(User.username == username).first()
+
+
+def get_user_by_id(db: Session, user_id: int) -> Optional[User]:
+    return db.query(User).filter(User.id == user_id).first()
+
+
+def list_users(db: Session, page=1, size=50):
+    query = db.query(User).order_by(User.created_at.desc())
+    total = query.count()
+    items = query.offset((page-1)*size).limit(size).all()
+    return items, total
+
+
+def update_user(db: Session, user_id: int, data: UserUpdate) -> Optional[User]:
+    user = get_user_by_id(db, user_id)
+    if not user:
+        return None
+    payload = data.model_dump(exclude_unset=True)
+    if 'password' in payload and payload['password'] is not None:
+        user.password_hash = pwd_context.hash(payload.pop('password'))
+    if 'role' in payload and payload['role'] not in ('admin', 'user'):
+        payload['role'] = 'user'
+    for key, value in payload.items():
+        setattr(user, key, value)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def delete_user(db: Session, user_id: int) -> bool:
+    user = get_user_by_id(db, user_id)
+    if not user:
+        return False
+    db.delete(user)
+    db.commit()
+    return True

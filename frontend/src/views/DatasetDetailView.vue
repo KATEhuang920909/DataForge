@@ -2,7 +2,7 @@
   <div v-if="source" class="fade-in">
     <!-- Breadcrumb -->
     <div class="flex items-center gap-1.5 text-sm mb-4 text-gray-500 dark:text-gray-400">
-      <button @click="$emit('back')" class="hover:text-hf-blue transition">Datasets</button>
+      <button @click="router.back()" class="hover:text-hf-blue transition">Datasets</button>
       <span>/</span>
       <span>/</span><span class="font-medium text-gray-900 dark:text-white">{{ source.slug }}</span>
     </div>
@@ -122,7 +122,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { FileText, Download } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import { FileText, Download, Trash2 } from 'lucide-vue-next'
 import { fetchSource, fetchFiles, getFilePreview, getDownloadUrl, deleteFile } from '../api'
 import UploadZone from '../components/UploadZone.vue'
 import DataPreview from '../components/DataPreview.vue'
@@ -132,6 +133,7 @@ import FileIcon from '../components/FileIcon.vue'
 import type { DataSource, DatasetFile, FilePreview } from '../types'
 
 const props = defineProps<{ sourceId: number }>()
+const router = useRouter()
 
 const source = ref<DataSource | null>(null)
 const files = ref<DatasetFile[]>([])

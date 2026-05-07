@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
     DATABASE_URL: str = "sqlite:///./dataforge.db"
+    AUTH_SECRET: str = "dataforge-secret-key"
+    AUTH_ACCESS_TOKEN_EXPIRE_SECONDS: int = 60 * 60 * 24
     CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://localhost:3000",

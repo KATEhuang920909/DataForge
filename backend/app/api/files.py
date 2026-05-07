@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from typing import Optional
+from app.core.auth import get_optional_current_user, get_current_user, require_admin
 from app.core.database import get_db
 from app.schemas import DatasetFileOut, APIResponse
 from app.services import get_files, get_file_by_id, upload_file, export_file, get_file_preview, delete_file, _log, get_source_by_id
@@ -13,13 +14,13 @@ def _f(f): return DatasetFileOut.model_validate(f).model_dump()
 
 
 @router.get("/list/{source_id}", response_model=APIResponse)
-async def list_files(source_id: int, db: Session = Depends(get_db)):
+async def list_files(source_id: int, db: Session = Depends(get_db), current_user=Depends(get_optional_current_user)):
     files = get_files(db, source_id)
     return APIResponse(data={"items": [_f(f) for f in files], "total": len(files)})
 
 
 @router.post("/upload/{source_id}", response_model=APIResponse)
-async def upload(source_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload(source_id: int, file: UploadFile = File(...), db: Session = Depends(get_db), current_user=Depends(require_admin)):
     if not get_source_by_id(db, source_id): 
         _log(db, "upload_file", "dataset_file", None, f"Failed: 数据集不存在", source_id=source_id, status="failed")
         db.commit()
@@ -47,21 +48,21 @@ async def upload(source_id: int, file: UploadFile = File(...), db: Session = Dep
 
 
 @router.get("/{file_id}", response_model=APIResponse)
-async def get_file_info(file_id: int, db: Session = Depends(get_db)):
+async def get_file_info(file_id: int, db: Session = Depends(get_db), current_user=Depends(get_optional_current_user)):
     f = get_file_by_id(db, file_id)
     if not f: raise HTTPException(404, "文件不存在")
     return APIResponse(data=_f(f))
 
 
 @router.get("/{file_id}/preview", response_model=APIResponse)
-async def preview(file_id: int, db: Session = Depends(get_db)):
+async def preview(file_id: int, db: Session = Depends(get_db), current_user=Depends(get_optional_current_user)):
     try: data = get_file_preview(db, file_id)
     except ValueError as e: raise HTTPException(404, str(e))
     return APIResponse(data=data)
 
 
 @router.get("/{file_id}/download")
-async def download(file_id: int, db: Session = Depends(get_db)):
+async def download(file_id: int, db: Session = Depends(get_db), current_user=Depends(get_optional_current_user)):
     f = get_file_by_id(db, file_id)
     if not f: raise HTTPException(404, "文件不存在")
     filename = f.file_name
@@ -83,7 +84,7 @@ async def download(file_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{file_id}", response_model=APIResponse)
-async def remove_file(file_id: int, db: Session = Depends(get_db)):
+async def remove_file(file_id: int, db: Session = Depends(get_db), current_user=Depends(require_admin)):
     try:
         if not delete_file(db, file_id): 
             raise HTTPException(404, "文件不存在")

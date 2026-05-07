@@ -38,3 +38,18 @@ export interface ActivityLog {
   status: string  // success / failed
   created_at: string
 }
+
+export interface User {
+  id: number
+  username: string
+  full_name: string
+  email: string
+  role: string
+  is_active: boolean
+  created_at: string
+}
+
+export interface TokenData {
+  access_token: string
+  token_type: string
+}

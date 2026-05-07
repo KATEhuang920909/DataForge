@@ -4,13 +4,8 @@
       <!-- Main Nav -->
       <button
         v-for="item in mainNav" :key="item.id"
-        @click="$emit('navigate', item.id)"
-        :class="[
-          'w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition',
-          current === item.id
-            ? 'bg-hf-yellow/15 text-gray-900 dark:text-white font-semibold'
-            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-        ]"
+        @click="navigate(item.id)"
+        class="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
       >
         <component :is="item.icon" class="w-4 h-4" />
         {{ item.label }}
@@ -40,10 +35,10 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { Database, Activity } from 'lucide-vue-next'
 
-defineProps<{ current: string }>()
-defineEmits<{ navigate: [view: string] }>()
+const router = useRouter()
 
 const mainNav = [
   { id: 'datasets', label: 'Datasets', icon: Database },
@@ -56,4 +51,12 @@ const formats = [
   { name: 'JSON', ext: '.json' },
   { name: 'Excel', ext: '.xlsx' },
 ]
+
+function navigate(view: string) {
+  if (view === 'datasets') {
+    router.push('/')
+  } else if (view === 'logs') {
+    router.push('/logs')
+  }
+}
 </script>

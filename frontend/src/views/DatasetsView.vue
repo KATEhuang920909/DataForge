@@ -61,6 +61,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Plus } from 'lucide-vue-next'
 import { fetchSources, createSource } from '../api'
 import DatasetCard from '../components/DatasetCard.vue'
@@ -69,7 +70,7 @@ import Modal from '../components/Modal.vue'
 import Toast from '../components/Toast.vue'
 import type { DataSource } from '../types'
 
-const emit = defineEmits<{ openDetail: [id: number] }>()
+const router = useRouter()
 
 const sources = ref<DataSource[]>([])
 const loading = ref(false)
@@ -113,7 +114,7 @@ async function handleCreate() {
   } catch (e: any) { toast(e.response?.data?.detail || '创建失败', 'error') }
 }
 
-function openDetail(id: number) { emit('openDetail', id) }
+function openDetail(id: number) { router.push(`/dataset/${id}`) }
 
 onMounted(load)
 </script>
