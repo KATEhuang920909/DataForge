@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13-alpine
+    container_name: dataforge_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=dataforge
+      - POSTGRES_PASSWORD=dataforge
+      - POSTGRES_DB=dataforge
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: frontend/Dockerfile
+    container_name: dataforge_api
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://dataforge:dataforge@db/dataforge
+      - AUTH_SECRET=a-very-secret-key
+      - AUTH_ACCESS_TOKEN_EXPIRE_SECONDS=86400
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dataforge_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
