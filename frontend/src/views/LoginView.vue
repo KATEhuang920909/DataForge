@@ -1,57 +1,67 @@
 <template>
-  <div class="login-container">
-    <div class="info-panel">
-      <div class="logo-section">
-        <div class="logo">DF</div>
-        <h1>DataForge</h1>
-        <p>数据管理工具</p>
-      </div>
-      <div class="did-you-know">
-        <h4>Did you know?</h4>
-        <p>You can sync data from all popular cloud storage providers to collect new items for labeling as they are uploaded, and return the annotation results to train and continuously improve models. <a>Learn more</a></p>
-      </div>
-      <div class="footer">
-        <span>Brought to you by</span>
-        <strong>HumanSignal</strong>
-      </div>
-    </div>
-    <div class="login-panel">
-      <div class="login-card">
-        <h2>Log in</h2>
-        <form @submit.prevent="handleLogin" class="login-form">
-          <div class="form-group">
-            <label for="username">User Name</label>
-            <input
-              id="username"
-              v-model="username"
-              type="text"
-              required
-              placeholder="User Name"
-            />
+  <div class="login-page">
+    <div class="login-background" />
+    <div class="login-frame">
+
+      <main class="login-card">
+        <section class="login-panel">
+          <div class="login-head">
+            <h1>欢迎来到 DataForge</h1>
+            <p>请输入用户名和密码登录，开始管理您的数据资源。</p>
           </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input
-              id="password"
-              v-model="password"
-              type="password"
-              required
-              placeholder="Password"
-            />
+
+          <form @submit.prevent="handleLogin" class="login-form">
+            <div class="form-group">
+              <label for="username">用户名</label>
+              <input
+                id="username"
+                v-model="username"
+                type="text"
+                required
+                autocomplete="username"
+                placeholder="请输入用户名"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">密码</label>
+              <input
+                id="password"
+                v-model="password"
+                type="password"
+                required
+                autocomplete="current-password"
+                placeholder="请输入密码"
+              />
+            </div>
+
+            <div class="form-options">
+              <label class="checkbox-wrapper">
+                <input type="checkbox" />
+                <span>记住我</span>
+              </label>
+            </div>
+
+            <button type="submit" :disabled="loading" class="login-btn">
+              {{ loading ? '登录中...' : '登录' }}
+            </button>
+          </form>
+
+          <p v-if="error" class="error-message">{{ error }}</p>
+        </section>
+
+        <aside class="login-info">
+          <h2>即时访问</h2>
+          <p>
+            DataForge 提供简洁的数据管理体验，您可以直接登录开始管理您的数据资源，并实现上传、下载、删除、更新等操作。
+          </p>
+          <div class="info-pill-list">
+            <span class="info-pill">轻量化</span>
+            <span class="info-pill">安全可靠</span>
+            <span class="info-pill">高效管理</span>
           </div>
-          <div class="form-options">
-            <input type="checkbox" id="keep-logged-in" />
-            <label for="keep-logged-in">Keep me logged in this browser</label>
-          </div>
-          <button type="submit" :disabled="loading" class="login-btn">
-            {{ loading ? 'Logging in...' : 'Log in' }}
-          </button>
-        </form>
-        <p class="signup-link">
-          Don't have an account? <a>Sign up</a>
-        </p>
-        <p v-if="error" class="error">{{ error }}</p>
-      </div>
+        </aside>
+      </main>
     </div>
   </div>
 </template>
@@ -75,7 +85,7 @@ const handleLogin = async () => {
     localStorage.setItem('auth_token', response.access_token)
     router.replace('/')
   } catch (err: any) {
-    error.value = err.response?.data?.detail || '登录失败'
+    error.value = err.response?.data?.detail || '登录失败，请检查用户名和密码'
   } finally {
     loading.value = false
   }
@@ -83,166 +93,258 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.login-container {
-  display: flex;
+.login-page {
   min-height: 100vh;
+  width: 100%;
+  background: #f7f8fb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  overflow: hidden;
 }
 
-.info-panel {
-  flex: 1;
-  padding: 3rem;
+.login-background {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(255, 165, 0, 0.12), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.12), transparent 20%);
+  pointer-events: none;
+}
+
+.login-frame {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  z-index: 1;
+}
+
+.login-header {
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  background: linear-gradient(to bottom right, #fde2e2, #f0f2f5);
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
 }
 
-.logo-section .logo {
-  width: 48px;
-  height: 48px;
-  background-color: #d9534f;
-  color: white;
+.brand-block {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  font-weight: bold;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  gap: 1rem;
 }
 
-.logo-section h1 {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+.brand-mark {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
 }
 
-.logo-section p {
-  color: #6c757d;
+.brand-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #111827;
 }
 
-.did-you-know {
-  background-color: #e9ecef;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin: 2rem 0;
-}
-
-.did-you-know h4 {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.did-you-know p {
-  color: #495057;
-}
-
-.did-you-know a {
-  color: #007bff;
-  text-decoration: underline;
-}
-
-.footer {
-  font-size: 0.875rem;
-  color: #6c757d;
-}
-
-.footer strong {
-  color: #000;
-}
-
-.login-panel {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f8f9fa;
+.brand-subtitle {
+  color: #6b7280;
+  font-size: 0.92rem;
 }
 
 .login-card {
-  width: 100%;
-  max-width: 400px;
-  padding: 2.5rem;
-  border-radius: 1rem;
-  background: white;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 1.5rem;
+  background: #ffffff;
+  border-radius: 28px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.08);
 }
 
-.login-card h2 {
-  font-size: 1.75rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 2rem;
+.login-panel,
+.login-info {
+  padding: 3rem;
+}
+
+.login-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-head h1 {
+  margin: 0;
+  font-size: 2.3rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.login-head p {
+  margin: 1rem 0 0;
+  color: #4b5563;
+  line-height: 1.8;
+  max-width: 38rem;
 }
 
 .login-form {
+  margin-top: 2rem;
   display: grid;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .form-group {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
 
-label {
+.form-group label {
+  font-size: 0.95rem;
+  color: #374151;
   font-weight: 600;
-  color: #495057;
 }
 
-input[type="text"],
-input[type="password"] {
+input[type='text'],
+input[type='password'] {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #ced4da;
-  border-radius: 0.5rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid #d1d5db;
+  border-radius: 16px;
+  background: #f9fafb;
+  color: #111827;
   font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type='text']:focus,
+input[type='password']:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
+  background: #ffffff;
+  outline: none;
 }
 
 .form-options {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  justify-content: flex-start;
 }
 
-.form-options label {
-  font-size: 0.875rem;
-  color: #495057;
+.checkbox-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.checkbox-wrapper input {
+  width: 18px;
+  height: 18px;
+  accent-color: #f97316;
 }
 
 .login-btn {
   width: 100%;
-  padding: 0.875rem;
   border: none;
-  border-radius: 0.5rem;
-  background: #343a40;
+  border-radius: 16px;
+  padding: 1.05rem;
+  background: #ff8c2b;
   color: white;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 14px 30px rgba(251, 115, 37, 0.2);
 }
 
-.login-btn:hover {
-  background: #23272b;
+.login-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #f97316;
 }
 
-.signup-link {
-  text-align: center;
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
-  color: #6c757d;
+.login-btn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
-.signup-link a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.error {
-  margin-top: 1.25rem;
+.error-message {
+  margin-top: 1rem;
   color: #b91c1c;
-  text-align: center;
   font-weight: 600;
+}
+
+.login-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+.login-info h2 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.login-info p {
+  margin: 1rem 0 2rem;
+  color: #475569;
+  line-height: 1.9;
+}
+
+.info-pill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.info-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.15rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  color: #475569;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+@media (max-width: 980px) {
+  .login-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .login-page {
+    padding: 1rem;
+  }
+
+  .login-frame {
+    width: 100%;
+  }
+
+  .login-header,
+  .login-panel,
+  .login-info {
+    padding: 1.5rem;
+  }
+
+  .login-head h1 {
+    font-size: 1.9rem;
+  }
 }
 </style>
