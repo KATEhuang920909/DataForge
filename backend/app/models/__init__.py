@@ -1,7 +1,12 @@
 """SQLAlchemy 数据模型"""
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, JSON, Index, Float
 from app.core.database import Base
+
+CN_TZ = timezone(timedelta(hours=8), name="Asia/Shanghai")
+
+def now_cn():
+    return datetime.now(CN_TZ)
 
 
 class DataSource(Base):
@@ -20,8 +25,8 @@ class DataSource(Base):
     likes = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
 
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now_cn)
+    updated_at = Column(DateTime(timezone=True), default=now_cn, onupdate=now_cn)
 
     __table_args__ = (
         Index("ix_ds_name", "name"),
@@ -47,7 +52,7 @@ class DatasetFile(Base):
     columns = Column(JSON, default=list)
 
     sort_order = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now_cn)
 
     __table_args__ = (
         Index("ix_file_source", "source_id"),
@@ -65,8 +70,8 @@ class DataRecord(Base):
     row_index = Column(Integer, default=0)
     version = Column(Integer, default=1)
     is_deleted = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now_cn)
+    updated_at = Column(DateTime(timezone=True), default=now_cn, onupdate=now_cn)
 
     __table_args__ = (
         Index("ix_record_file_deleted", "file_id", "is_deleted"),
@@ -84,7 +89,7 @@ class ActivityLog(Base):
     source_id = Column(Integer, nullable=True, index=True)
     detail = Column(Text, default="")
     status = Column(String(16), default="success")  # success / failed
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now_cn)
 
     __table_args__ = (
         Index("ix_log_action", "action"),
@@ -104,7 +109,7 @@ class User(Base):
     password_hash = Column(String(256), nullable=False)
     role = Column(String(16), default="user")  # admin / user
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), default=now_cn)
 
     __table_args__ = (
         Index("ix_user_role", "role"),

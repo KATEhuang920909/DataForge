@@ -37,7 +37,14 @@ function formatSize(b: number) {
   return (b/1048576).toFixed(1) + ' MB'
 }
 
+function parseTimestamp(iso: string) {
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(iso)) {
+    return new Date(iso + 'Z')
+  }
+  return new Date(iso)
+}
+
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+  return parseTimestamp(iso).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
 }
 </script>

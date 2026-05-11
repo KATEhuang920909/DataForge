@@ -1,12 +1,22 @@
 """操作日志"""
 import math
 from typing import Optional
+from datetime import timezone, timedelta
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas import APIResponse, ActivityLogOut
 from app.services import get_logs
 from app.models import DataSource
+
+CN_TZ = timezone(timedelta(hours=8), name="Asia/Shanghai")
+
+def to_beijing(dt):
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(CN_TZ).isoformat()
 
 router = APIRouter(prefix="/logs", tags=["logs"])
 
@@ -27,7 +37,7 @@ async def list_logs(page: int = Query(1, ge=1), size: int = Query(20, ge=1, le=1
             "source_id": l.source_id,
             "detail": l.detail,
             "status": l.status,
-            "created_at": str(l.created_at),
+            "created_at": to_beijing(l.created_at),
             "source_name": None
         }
         if l.source_id:

@@ -11,6 +11,7 @@ from pathlib import Path
 import pandas as pd
 from sqlalchemy.orm import Session
 from sqlalchemy import func, String
+from datetime import datetime, timedelta, timezone
 
 from app.core.security import pwd_context
 from app.models import DataSource, DatasetFile, DataRecord, ActivityLog, User
@@ -38,6 +39,22 @@ def get_sources(db: Session, page=1, size=20, active_only=False, tag=None, keywo
     if keyword: query = query.filter(DataSource.name.ilike(f"%{keyword}%"))
     total = query.count()
     items = query.order_by(DataSource.updated_at.desc()).offset((page-1)*size).limit(size).all()
+
+    if items:
+        source_ids = [source.id for source in items]
+        stats = db.query(
+            DatasetFile.source_id,
+            func.count(DatasetFile.id),
+            func.coalesce(func.sum(DatasetFile.file_size), 0)
+        ).filter(DatasetFile.source_id.in_(source_ids)).group_by(DatasetFile.source_id).all()
+        stats_map = {sid: (count, total_size) for sid, count, total_size in stats}
+
+        for source in items:
+            count, total_size = stats_map.get(source.id, (0, 0))
+            source.file_count = count
+            source.total_size = total_size
+        db.flush()
+
     return items, total
 
 
@@ -82,7 +99,7 @@ def _update_source_stats(db: Session, source_id: int):
     if source:
         source.file_count = len(files)
         source.total_size = sum(f.file_size for f in files)
-        source.updated_at = datetime.utcnow()
+        source.updated_at = datetime.now(timezone(timedelta(hours=8)))
         db.flush()
 
 

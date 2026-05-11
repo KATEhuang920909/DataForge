@@ -60,8 +60,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { Plus } from 'lucide-vue-next'
 import { fetchSources, createSource } from '../api'
 import DatasetCard from '../components/DatasetCard.vue'
@@ -71,6 +71,7 @@ import Toast from '../components/Toast.vue'
 import type { DataSource } from '../types'
 
 const router = useRouter()
+const route = useRoute()
 
 const sources = ref<DataSource[]>([])
 const loading = ref(false)
@@ -115,6 +116,13 @@ async function handleCreate() {
 }
 
 function openDetail(id: number) { router.push(`/dataset/${id}`) }
+
+watch(
+  () => route.fullPath,
+  (newPath, oldPath) => {
+    if (newPath !== oldPath) load()
+  }
+)
 
 onMounted(load)
 </script>

@@ -28,8 +28,18 @@ import type { ActivityLog } from '../types'
 const props = defineProps<{ sourceId: number }>()
 const logs = ref<ActivityLog[]>([])
 
+function parseTimestamp(iso: string) {
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(iso)) {
+    return new Date(iso + 'Z')
+  }
+  return new Date(iso)
+}
+
 function formatTime(iso: string) {
-  return new Date(iso).toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' })
+  return parseTimestamp(iso).toLocaleString('zh-CN', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  })
 }
 
 onMounted(async () => {

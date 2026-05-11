@@ -15,8 +15,8 @@
           <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl">{{ source.description || '暂无描述' }}</p>
           <div class="flex flex-wrap items-center gap-2 mt-3">
             <span v-for="tag in source.tags" :key="tag" class="hf-tag">{{ tag }}</span>
-            <span class="hf-tag bg-gray-100 dark:bg-gray-800 text-xs">{{ source.file_count }} files</span>
-            <span v-if="source.total_size" class="hf-tag bg-gray-100 dark:bg-gray-800 text-xs">{{ formatSize(source.total_size) }}</span>
+            <span class="hf-tag bg-gray-100 dark:bg-gray-800 text-xs">{{ actualFileCount }} files</span>
+            <span v-if="actualFileCount > 0" class="hf-tag bg-gray-100 dark:bg-gray-800 text-xs">{{ formatSize(actualTotalSize) }}</span>
           </div>
         </div>
       </div>
@@ -121,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { FileText, Download, Trash2 } from 'lucide-vue-next'
 import { fetchSource, fetchFiles, getFilePreview, getDownloadUrl, deleteFile } from '../api'
@@ -143,6 +143,9 @@ const activityKey = ref(0)
 const previewData = ref<FilePreview | null>(null)
 const toastMsg = ref('')
 const toastType = ref<'success'|'error'|'info'>('success')
+
+const actualFileCount = computed(() => files.value.length)
+const actualTotalSize = computed(() => files.value.reduce((sum, file) => sum + (file.file_size || 0), 0))
 let toastTimer: ReturnType<typeof setTimeout>
 
 const tabs = [
@@ -174,7 +177,7 @@ async function handleDeleteFile(f: DatasetFile) {
   if (!confirm(`确定删除 "${f.file_name}"？`)) return
   try {
     await deleteFile(f.id)
-    files.value = files.value.filter(item => item.id !== f.id)
+    await loadAll()
     activityKey.value++
     toast('文件已删除')
     if (selectedFileId.value === f.id) { selectedFileId.value = null; previewData.value = null }
