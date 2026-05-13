@@ -1,5 +1,5 @@
 # 使用阿里云上海节点的公开镜像（无需登录，但可能较旧）
-FROM python:3.11-slim
+FROM python:3.9-slim
 
 WORKDIR /app
 

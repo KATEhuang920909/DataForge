@@ -24,7 +24,7 @@
         </label>
       </p>
       <p class="text-xs text-gray-400">
-        支持任意文件格式 — CSV、JSON、Excel、Markdown、代码、文本等，最大 50MB
+        支持任意文件格式 — CSV、JSON、Excel、Markdown、代码、文本等，最大 200MB
       </p>
     </template>
 

@@ -45,7 +45,8 @@ class DatasetFile(Base):
     file_type = Column(String(16), default="")       # tabular / raw
     file_size = Column(Integer, default=0)
     file_content = Column(Text, default="")            # raw 类型存原文
-
+    # models.py 中 DatasetFile 模型需新增
+    local_file_path = Column(String, nullable=True, comment="本地文件存储路径")
     # tabular 元信息
     schema_definition = Column(JSON, default=dict)
     record_count = Column(Integer, default=0)
