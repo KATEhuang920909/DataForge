@@ -21,12 +21,12 @@
             :class="s.is_active ? 'bg-brand-50 text-brand-600' : 'bg-dark-100 text-dark-400'">
             <Database class="w-5 h-5" />
           </div>
-          <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition">
-            <button @click="openEdit(s)" class="p-1.5 rounded-lg hover:bg-dark-100 text-dark-500 transition">
-              <Pencil class="w-3.5 h-3.5" />
+          <div class="flex items-center space-x-2">
+            <button @click="openEdit(s)" class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 transition" title="编辑">
+              <Edit class="w-4 h-4" />
             </button>
-            <button @click="handleDelete(s)" class="p-1.5 rounded-lg hover:bg-red-50 text-dark-500 hover:text-red-500 transition">
-              <Trash2 class="w-3.5 h-3.5" />
+            <button @click="handleDelete(s)" class="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition" title="删除">
+              <Trash2 class="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Plus, Database, FileText, Pencil, Trash2 } from 'lucide-vue-next'
+import { Plus, Database, FileText, Edit, Trash2 } from 'lucide-vue-next'
 import { fetchSources, createSource, updateSource, deleteSource } from '../api'
 import Pagination from '../components/Pagination.vue'
 import Modal from '../components/Modal.vue'

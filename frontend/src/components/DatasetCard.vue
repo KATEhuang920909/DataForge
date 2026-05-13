@@ -13,6 +13,18 @@
           {{ source.description || '暂无描述' }}
         </p>
       </div>
+
+      <!-- Right: actions (on hover) -->
+      <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <button @click.stop="$emit('edit', source)"
+          class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400">
+          <Pencil class="w-4 h-4" />
+        </button>
+        <button @click.stop="$emit('delete', source)"
+          class="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/50 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-500">
+          <Trash2 class="w-4 h-4" />
+        </button>
+      </div>
     </div>
     <!-- Bottom stats -->
     <div class="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
@@ -24,15 +36,19 @@
 </template>
 
 <script setup lang="ts">
-import { FileText } from 'lucide-vue-next'
+import { FileText, Pencil, Trash2 } from 'lucide-vue-next'
 import type { DataSource } from '../types'
 
 const props = defineProps<{ source: DataSource }>()
-const emit = defineEmits<{ view: [id: number]; updated: [] }>()
+const emit = defineEmits<{
+  view: [id: number]
+  edit: [source: DataSource]
+  delete: [source: DataSource]
+}>()
 
 function formatSize(b: number) {
   if (!b) return ''
-  if (b < 1024) return b + ' B'
+
   if (b < 1048576) return (b/1024).toFixed(1) + ' KB'
   return (b/1048576).toFixed(1) + ' MB'
 }
