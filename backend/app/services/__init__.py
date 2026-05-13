@@ -74,7 +74,17 @@ def get_source_by_id(db: Session, source_id: int) -> Optional[DataSource]:
 def update_source(db: Session, source_id: int, data: DataSourceUpdate) -> Optional[DataSource]:
     source = get_source_by_id(db, source_id)
     if not source: return None
-    for k, v in data.model_dump(exclude_unset=True).items():
+    
+    # Check if name is being updated and update slug accordingly
+    update_data = data.model_dump(exclude_unset=True)
+    if 'name' in update_data:
+        # Generate slug from name (simple implementation)
+        import re
+        slug = re.sub(r'[^\w\s-]', '', update_data['name']).strip().lower()
+        slug = re.sub(r'[-\s]+', '-', slug)
+        update_data['slug'] = slug
+    
+    for k, v in update_data.items():
         setattr(source, k, v)
     _log(db, "update_source", "data_source", source.id, f"Updated: {source.name}", source_id=source.id)
     db.commit(); db.refresh(source)

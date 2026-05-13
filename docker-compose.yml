@@ -14,7 +14,7 @@ services:
     volumes:
       - dataforge-data:/app/data
     ports:
-      - 8000:8000
+      - 8001:8000
 # 添加管理员权限配置
     privileged: true
 
