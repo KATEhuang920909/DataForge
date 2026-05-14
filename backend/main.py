@@ -30,12 +30,12 @@ def _ensure_default_admin():
             try:
                 create_user(db, UserCreate(
                     username='admin',
-                    password='admin123',
+                    password='Bocsoft2025@Advanced',
                     full_name='Administrator',
                     email='',
                     role='admin'
                 ))
-                print('🚀 默认管理员 admin 已创建，初始密码 admin123')
+                print('🚀 默认管理员 admin 已创建，初始密码 Bocsoft2025@Advanced')
             except Exception:
                 db.rollback()
     finally:

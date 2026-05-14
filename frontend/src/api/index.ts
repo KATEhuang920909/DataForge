@@ -3,7 +3,7 @@ const api = axios.create({ baseURL: '/api/v1', timeout: 60000 })
 
 // Add auth token to requests
 api.interceptors.request.use(config => {
-  const token = localStorage.getItem('auth_token')
+  const token = sessionStorage.getItem('auth_token')
   if (token && token !== 'undefined' && token !== 'null') {
     config.headers = config.headers || {}
     config.headers.Authorization = `Bearer ${token}`
@@ -16,7 +16,7 @@ api.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token')
+      sessionStorage.removeItem('auth_token')
       // Use window.location for full page redirect to ensure clean state
       window.location.href = '/login'
     }
