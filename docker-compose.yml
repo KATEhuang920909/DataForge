@@ -3,6 +3,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
     container_name: dataforge-api
     user: root
     environment:
@@ -22,6 +24,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
     container_name: dataforge-frontend
     user: root
     privileged: true
