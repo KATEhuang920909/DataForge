@@ -40,7 +40,7 @@ const router = createRouter({
 // Auth guard
 router.beforeEach((to, _from, next) => {
   const token = sessionStorage.getItem('auth_token')
-  const hasToken = token && token !== 'undefined' && token !== 'null'
+  const hasToken = !!token
   const requiresAuth = to.meta.requiresAuth !== false
 
   if (!hasToken) {
