@@ -39,12 +39,12 @@ const router = createRouter({
 
 // Auth guard
 router.beforeEach((to, _from, next) => {
-  const token = localStorage.getItem('auth_token')
+  const token = sessionStorage.getItem('auth_token')
   const hasToken = token && token !== 'undefined' && token !== 'null'
   const requiresAuth = to.meta.requiresAuth !== false
 
   if (!hasToken) {
-    localStorage.removeItem('auth_token')
+    sessionStorage.removeItem('auth_token')
   }
 
   if (requiresAuth && !hasToken) {

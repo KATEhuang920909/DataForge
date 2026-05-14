@@ -63,7 +63,7 @@ const showUserMenu = ref(false)
 const user = ref<User | null>(null)
 
 async function loadUser() {
-  const token = localStorage.getItem('auth_token')
+  const token = sessionStorage.getItem('auth_token')
   if (!token) {
     user.value = null
     return
@@ -85,7 +85,7 @@ function navigate(view: string) {
 }
 
 function logout() {
-  localStorage.removeItem('auth_token')
+  sessionStorage.removeItem('auth_token')
   user.value = null
   router.push('/login')
 }

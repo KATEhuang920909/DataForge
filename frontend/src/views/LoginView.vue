@@ -82,7 +82,7 @@ const handleLogin = async () => {
   error.value = ''
   try {
     const response = await login(username.value, password.value)
-    localStorage.setItem('auth_token', response.access_token)
+    sessionStorage.setItem('auth_token', response.access_token)
     router.replace('/')
   } catch (err: any) {
     error.value = err.response?.data?.detail || '登录失败，请检查用户名和密码'
