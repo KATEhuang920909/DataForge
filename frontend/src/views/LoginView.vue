@@ -56,7 +56,7 @@
             DataForge 提供简洁的数据管理体验，您可以直接登录开始管理您的数据资源，并实现上传、下载、删除、更新等操作。
           </p>
           <div class="info-pill-list">
-            <span class="info-pill">轻量化</span>
+            <span class="info-pill">轻量化工具</span>
             <span class="info-pill">安全可靠</span>
             <span class="info-pill">高效管理</span>
           </div>
