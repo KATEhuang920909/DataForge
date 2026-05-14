@@ -22,7 +22,7 @@ from app.schemas import DataSourceCreate, DataSourceUpdate, UserCreate, UserUpda
 # 配置项
 TABULAR_FORMATS = {'csv', 'json', 'xlsx', 'xls', 'tsv'}
 LOCAL_FILE_STORAGE = Path("./data/local_files").resolve()  # 转为绝对路径，避免相对路径错误
-MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB 最大文件限制，避免内存溢出
+MAX_FILE_SIZE = 1000 * 1024 * 1024  # 1000MB 最大文件限制，避免内存溢出
 SAFE_FILENAME_REGEX = re.compile(r'[^\w\u4e00-\u9fa5\-\.]')  # 过滤非法文件名
 
 # 初始化存储目录

@@ -31,9 +31,9 @@ async def upload(source_id: int, file: UploadFile = File(...), db: Session = Dep
         db.commit()
         raise HTTPException(400, "文件为空")
     if len(content) > 200*1024*1024:
-        _log(db, "upload_file", "dataset_file", None, f"Failed: {file.filename} 文件大小超过200MB", source_id=source_id, status="failed")
+        _log(db, "upload_file", "dataset_file", None, f"Failed: {file.filename} 文件大小超过1000MB", source_id=source_id, status="failed")
         db.commit()
-        raise HTTPException(400, "文件大小不能超过 200MB")
+        raise HTTPException(400, "文件大小不能超过 1000MB")
     try:
         f = upload_file(db, source_id, content, file.filename)
     except ValueError as e:
