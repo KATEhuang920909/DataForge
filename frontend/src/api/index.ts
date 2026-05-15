@@ -55,6 +55,9 @@ export const fetchLogs = (params?: Record<string, unknown>) =>
   api.get('/logs/', { params }).then(r => r.data.data)
 export const login = (username: string, password: string) =>
   api.post('/auth/login', { username, password }).then(r => r.data.data)
+
+export const updateUserPassword = (username: string, old_password: string, new_password: string) =>
+  api.post('/auth/update-password', { username, old_password, new_password }).then(r => r.data)
 export const getMe = () =>
   api.get('/auth/me').then(r => r.data.data)
 export const fetchUsers = (params?: Record<string, unknown>) =>

@@ -2,15 +2,14 @@
   <div class="login-page">
     <div class="login-background" />
     <div class="login-frame">
-
       <main class="login-card">
         <section class="login-panel">
           <div class="login-head">
-            <h1>欢迎来到 DataForge</h1>
-            <p>请输入用户名和密码登录，开始管理您的数据资源。</p>
+            <h1>修改密码</h1>
+            <p>请输入您的用户名、旧密码和新密码。</p>
           </div>
 
-          <form @submit.prevent="handleLogin" class="login-form">
+          <form @submit.prevent="handleUpdatePassword" class="login-form">
             <div class="form-group">
               <label for="username">用户名</label>
               <input
@@ -24,42 +23,62 @@
             </div>
 
             <div class="form-group">
-              <label for="password">密码</label>
+              <label for="oldPassword">旧密码</label>
               <input
-                id="password"
-                v-model="password"
+                id="oldPassword"
+                v-model="oldPassword"
                 type="password"
                 required
                 autocomplete="current-password"
-                placeholder="请输入密码"
+                placeholder="请输入旧密码"
               />
             </div>
 
-            <div class="form-options">
-              <label class="checkbox-wrapper">
-                <input type="checkbox" />
-                <span>记住我</span>
-              </label>
-              <router-link to="/update-password" class="forgot-password">修改密码</router-link>
+            <div class="form-group">
+              <label for="newPassword">新密码</label>
+              <input
+                id="newPassword"
+                v-model="newPassword"
+                type="password"
+                required
+                autocomplete="new-password"
+                placeholder="请输入新密码"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">确认新密码</label>
+              <input
+                id="confirmPassword"
+                v-model="confirmPassword"
+                type="password"
+                required
+                autocomplete="new-password"
+                placeholder="请再次输入新密码"
+              />
             </div>
 
             <button type="submit" :disabled="loading" class="login-btn">
-              {{ loading ? '登录中...' : '登录' }}
+              {{ loading ? '修改中...' : '确认修改' }}
             </button>
           </form>
 
           <p v-if="error" class="error-message">{{ error }}</p>
+          <p v-if="success" class="success-message">{{ success }}</p>
+           <div class="form-options">
+              <router-link to="/login" class="forgot-password">返回登录</router-link>
+            </div>
         </section>
 
         <aside class="login-info">
-          <h2>即时访问</h2>
+          <h2>安全提示</h2>
           <p>
-            DataForge 提供简洁的数据管理体验，您可以直接登录开始管理您的数据资源，并实现上传、下载、删除、更新等操作。
+            为了保护您的账户安全，请定期修改密码，并使用包含字母、数字和符号的复杂密码。
           </p>
           <div class="info-pill-list">
-            <span class="info-pill">轻量化工具</span>
-            <span class="info-pill">安全可靠</span>
-            <span class="info-pill">高效管理</span>
+            <span class="info-pill">定期更换</span>
+            <span class="info-pill">高强度密码</span>
+            <span class="info-pill">保障安全</span>
           </div>
         </aside>
       </main>
@@ -70,23 +89,35 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { login } from '@/api'
+import { updateUserPassword } from '@/api'
 
 const router = useRouter()
 const username = ref('')
-const password = ref('')
+const oldPassword = ref('')
+const newPassword = ref('')
+const confirmPassword = ref('')
 const loading = ref(false)
 const error = ref('')
+const success = ref('')
 
-const handleLogin = async () => {
+const handleUpdatePassword = async () => {
+  if (newPassword.value !== confirmPassword.value) {
+    error.value = '两次输入的新密码不一致'
+    return
+  }
+
   loading.value = true
   error.value = ''
+  success.value = ''
+
   try {
-    const response = await login(username.value, password.value)
-    sessionStorage.setItem('auth_token', response.access_token)
-    router.replace('/')
+    await updateUserPassword(username.value, oldPassword.value, newPassword.value)
+    success.value = '密码修改成功！2秒后将跳转到登录页面。'
+    setTimeout(() => {
+      router.push('/login')
+    }, 2000)
   } catch (err: any) {
-    error.value = err.response?.data?.detail || '登录失败，请检查用户名和密码'
+    error.value = err.response?.data?.detail || '密码修改失败，请重试'
   } finally {
     loading.value = false
   }
@@ -101,7 +132,6 @@ const handleLogin = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
   overflow: hidden;
 }
 
@@ -118,47 +148,6 @@ const handleLogin = async () => {
   width: 100%;
   max-width: 1100px;
   z-index: 1;
-}
-
-.login-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1.25rem;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-}
-
-.brand-block {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.brand-mark {
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #fb923c, #f97316);
-  color: #ffffff;
-  font-size: 1.1rem;
-  font-weight: 800;
-  display: grid;
-  place-items: center;
-}
-
-.brand-name {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: #111827;
-}
-
-.brand-subtitle {
-  color: #6b7280;
-  font-size: 0.92rem;
 }
 
 .login-card {
@@ -234,36 +223,6 @@ input[type='password']:focus {
   outline: none;
 }
 
-.form-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.forgot-password {
-  font-size: 0.95rem;
-  color: #475569;
-  text-decoration: none;
-}
-
-.forgot-password:hover {
-  text-decoration: underline;
-}
-
-.checkbox-wrapper {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-  font-size: 0.95rem;
-  color: #475569;
-}
-
-.checkbox-wrapper input {
-  width: 18px;
-  height: 18px;
-  accent-color: #f97316;
-}
-
 .login-btn {
   width: 100%;
   border: none;
@@ -280,7 +239,6 @@ input[type='password']:focus {
 
 .login-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  background: #f97316;
 }
 
 .login-btn:disabled {
@@ -292,6 +250,12 @@ input[type='password']:focus {
 .error-message {
   margin-top: 1rem;
   color: #b91c1c;
+  font-weight: 600;
+}
+
+.success-message {
+  margin-top: 1rem;
+  color: #16a34a;
   font-weight: 600;
 }
 
@@ -334,6 +298,23 @@ input[type='password']:focus {
   font-weight: 600;
 }
 
+.form-options {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.forgot-password {
+  font-size: 0.95rem;
+  color: #475569;
+  text-decoration: none;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 980px) {
   .login-card {
     grid-template-columns: 1fr;
@@ -349,7 +330,6 @@ input[type='password']:focus {
     width: 100%;
   }
 
-  .login-header,
   .login-panel,
   .login-info {
     padding: 1.5rem;

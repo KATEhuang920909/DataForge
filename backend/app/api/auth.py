@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.core.auth import create_access_token, get_current_user
 from app.core.database import get_db
-from app.schemas import APIResponse, TokenOut, UserLogin, UserCreate
-from app.services import get_user_by_username, verify_password, create_user
+from app.schemas import APIResponse, TokenOut, UserLogin, UserCreate, UserPasswordUpdate
+from app.services import get_user_by_username, verify_password, create_user, update_user_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -29,6 +29,17 @@ async def register(body: UserCreate, db: Session = Depends(get_db)):
     new_user = create_user(db, body)
     token = create_access_token(new_user.id, new_user.role)
     return APIResponse(data=TokenOut(access_token=token).model_dump(), message="注册成功")
+
+
+@router.post("/update-password", response_model=APIResponse)
+async def update_password(body: UserPasswordUpdate, db: Session = Depends(get_db)):
+    user = get_user_by_username(db, body.username)
+    if not user or not verify_password(body.old_password, user.password_hash):
+        raise HTTPException(401, "用户名或旧密码错误")
+    
+    update_user_password(db, user, body.new_password)
+    return APIResponse(message="密码修改成功")
+
 
 
 @router.get("/me", response_model=APIResponse)

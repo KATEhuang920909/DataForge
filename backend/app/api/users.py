@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.core.auth import require_admin, get_current_user
 from app.core.database import get_db
-from app.schemas import APIResponse, UserCreate, UserUpdate, UserOut
-from app.services import create_user, delete_user, get_user_by_id, list_users, update_user
+from app.schemas import APIResponse, UserCreate, UserUpdate, UserOut, UserPasswordUpdate
+from app.services import create_user, delete_user, get_user_by_id, list_users, update_user, verify_password, get_password_hash
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -53,3 +53,13 @@ async def remove_user(user_id: int, db: Session = Depends(get_db), current_user=
     if not delete_user(db, user_id):
         raise HTTPException(404, "用户不存在")
     return APIResponse(message="用户已删除")
+
+
+@router.patch("/me/password", response_model=APIResponse)
+async def update_my_password(body: UserPasswordUpdate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    if not verify_password(body.old_password, current_user.password_hash):
+        raise HTTPException(400, "旧密码错误")
+    
+    hashed_password = get_password_hash(body.new_password)
+    update_user(db, current_user.id, UserUpdate(password=hashed_password))
+    return APIResponse(message="密码更新成功")

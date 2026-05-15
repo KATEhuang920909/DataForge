@@ -550,6 +550,10 @@ def verify_password(password: str, password_hash: str) -> bool:
     return pwd_context.verify(password, password_hash)
 
 
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+
 def create_user(db: Session, user_in: UserCreate) -> User:
     hashed_password = pwd_context.hash(user_in.password)
     db_user = User(
@@ -593,6 +597,11 @@ def update_user(db: Session, user_id: int, data: UserUpdate) -> Optional[User]:
     db.commit()
     db.refresh(user)
     return user
+
+
+def update_user_password(db: Session, user: User, new_password: str):
+    user.password_hash = get_password_hash(new_password)
+    db.commit()
 
 
 def delete_user(db: Session, user_id: int) -> bool:

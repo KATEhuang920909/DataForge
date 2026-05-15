@@ -3,12 +3,19 @@ import DatasetsView from './views/DatasetsView.vue'
 import DatasetDetailView from './views/DatasetDetailView.vue'
 import LogsView from './views/LogsView.vue'
 import LoginView from './views/LoginView.vue'
+import UpdatePasswordView from './views/UpdatePasswordView.vue'
 
 const routes = [
   {
     path: '/login',
     name: 'Login',
     component: LoginView,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/update-password',
+    name: 'UpdatePassword',
+    component: UpdatePasswordView,
     meta: { requiresAuth: false }
   },
   {
